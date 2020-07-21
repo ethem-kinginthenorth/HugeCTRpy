@@ -16,7 +16,7 @@ class MyTestCase(unittest.TestCase):
     def test_model_3(self):
         from hugectrpy.model import MomentumSGD
         m = MomentumSGD()
-        print(a)
+        print(m)
 
     def test_model_4(self):
         from hugectrpy.model import Nesterov

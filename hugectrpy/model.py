@@ -87,7 +87,7 @@ class Solver:
         parameter_list['sparse_model_file'] = self.sparse_model_file
 
         # this is kind of a sanity check
-        {k: v for k, v in parameter_list.items() if v is not None}
+        return {k: v for k, v in parameter_list.items() if v is not None}
 
     def __str__(self):
         return str( self.get_parameters())
@@ -150,7 +150,7 @@ class AdamOptimizer(Optimizer):
         optimizer_list['global_update'] = self.global_update
         optimizer_list['adam_hparam'] = {k: v for k, v in adam_list.items() if v is not None}
 
-        {k: v for k, v in optimizer_list.items() if v is not None}
+        return {k: v for k, v in optimizer_list.items() if v is not None}
 
     def __str__(self):
         return str(self.get_parameters())
