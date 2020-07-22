@@ -269,3 +269,4 @@ class BinaryCrossEntropyLoss(Layer):
         b_params = super().get_parameters()
         b_params['type'] = 'BinaryCrossEntropyLoss'
         return {k: v for k, v in b_params.items() if v is not None}
+
