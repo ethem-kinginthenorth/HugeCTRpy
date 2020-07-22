@@ -221,7 +221,7 @@ class DistributedSlotSparseEmbeddingHash(Layer):
         :param combiner: Boolean
             If set to 0 then sum, if set to 1 then mean
         '''
-        super().__init__(self, name, src_layers)
+        super().__init__(name, src_layers)
         self.vocabulary_size = vocabulary_size
         self.load_factor = load_factor
         self.embedding_vec_size = embedding_vec_size
@@ -270,3 +270,116 @@ class BinaryCrossEntropyLoss(Layer):
         b_params['type'] = 'BinaryCrossEntropyLoss'
         return {k: v for k, v in b_params.items() if v is not None}
 
+
+class Dense:
+
+    def __init__(self, name, dim=0):
+        '''
+        Dense model (features)
+        :param name: str
+            Specifies name.
+        :param dim: int
+            Specifies dense dimension
+        '''
+        self.name = name
+        self.dim = dim
+
+    def get_parameters(self):
+        d_params = dict()
+        d_params['top'] = self.name
+        d_params['dense_dim'] = self.dim
+        return {k: v for k, v in d_params.items() if v is not None}
+
+    def get_name(self):
+        return self.name
+
+class Sparse:
+
+    def __init__(self, name, slot_num, max_feature_num_per_sample=100):
+        '''
+
+        :param name: str
+            Specifies name.
+        :param slot_num: int
+            Specifies slot number.
+        :param max_feature_num_per_sample: int
+            Specifies maximum feature number per sample.
+        '''
+        self.name = name
+        self.slot_num = slot_num
+        self.max_feature_num_per_sample = max_feature_num_per_sample
+
+    def get_parameters(self):
+        s_params = dict()
+        s_params['top'] = self.name
+        s_params['type'] = "DistributedSlot"
+        s_params['max_faeture_num_per_sample'] = self.max_feature_num_per_sample
+        s_params['slot_num'] = self.slot_num
+        return {k: v for k, v in s_params.items() if v is not None}
+
+    def get_name(self):
+        return self.name
+
+class Label:
+
+    def __init__(self, name, dim):
+        self.name = name
+        self.dim = dim
+
+    def get_parameters(self):
+        l_params = dict()
+        l_params['top'] = self.name
+        l_params['label_dim'] = self.dim
+        return {k: v for k, v in l_params.items() if v is not None}
+
+    def get_name(self):
+        return self.name
+
+class Data(Layer):
+
+    def __init__(self, name, label, dense, sparse, source=None, eval_source=None, check='Sum'):
+        '''
+        Data layer
+        :param name: str
+            Specifies name of layer.
+        :param label: Label
+            Specifies label of model
+        :param dense: Dense
+            Specifies dense features
+        :param sparse: list of Sparse
+            Specifies sparse features (embeddings)
+        :param source: str
+            Specifies source file for training data.
+        :param eval_source: str
+            Specifies source file for test data.
+        :param check: str
+            Specifies if check.
+        '''
+        super().__init__(name=name,src_layers=None)
+        self.label = label
+        self.dense = dense
+        if isinstance(sparse, list):
+            self.sparse = sparse
+        else:
+            self.sparse = [sparse]
+        self.source = source
+        self.eval_source = eval_source
+        self.check = check
+
+    def get_parameters(self):
+        d_params = super().get_parameters()
+        del d_params['top']
+        d_params['type'] = 'Data'
+        d_params['source'] = self.source
+        d_params['eval_source'] = self.eval_source
+        d_params['check'] = self.check
+        d_params['label'] = {'label': self.label.get_parameters()}
+        d_params['dense'] = {'dense': self.dense.get_parameters()}
+        s=[]
+        for sp in self.sparse:
+            s.append(sp.get_parameters())
+        d_params['sparse'] = {'sparse': s}
+        return {k: v for k, v in d_params.items() if v is not None}
+
+    def __str__(self):
+        return str(self.get_parameters())

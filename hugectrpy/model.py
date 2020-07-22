@@ -39,15 +39,28 @@ class Model:
         parameters = dict()
         parameters['solver'] = self.solver.get_parameters()
         parameters['optimizer'] = self.optimizer.get_parameters()
-
+        all_layers=[]
+        for layer in self.layers:
+            all_layers.append(layer.get_parameters())
+        parameters['layers'] = all_layers
         return {k: v for k, v in parameters.items() if v is not None}
 
     def __str__(self):
         import json
-        return json.dumps( self.get_parameters())
+        return json.dumps(self.get_parameters())
 
     def add_layer(self, layer):
         self.layers.append(layer)
+
+    def add_layer_re(self, layer):
+        from hugectrpy.layers import Layer
+        if isinstance(layer, Layer):
+            self.layers.append(layer)
+            if layer.get_src_layers_count() > 1:
+                for sl in layer.get_src_layers():
+                    self.add_layer_re(sl)
+            elif layer.get_src_layers_count == 1:
+                self.add_layer_re( layer.get_src_layers())
 
     def get_layer_count(self):
         return len(self.layers)
@@ -127,7 +140,7 @@ class Solver:
         return {k: v for k, v in parameter_list.items() if v is not None}
 
     def __str__(self):
-        return str( self.get_parameters())
+        return str(self.get_parameters())
 
 
 class Optimizer:
