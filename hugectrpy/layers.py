@@ -165,3 +165,107 @@ class Concat(Layer):
             Specifies source layer(s) for a layer.
         '''
         super().__init__(name, src_layers)
+
+    def get_parameters(self):
+        c_params = super().get_parameters()
+        c_params['type'] = 'Concat'
+
+
+class Slice(Layer):
+
+    def __init__(self, name, src_layers, ranges):
+        '''
+        Slice layer.
+        *** Note that slice layer is a bit complicated. It can output multiple instances.
+        Therefore, I will be treating it differently ***
+        :param name: str
+            Specifies name of a layer.
+        :param src_layers: Layer or a list of Layers
+            Specifies source layer(s) for a layer.
+        '''
+        super().__init__(name, src_layers)
+        self.ranges = ranges
+
+    def get_parameters(self):
+        s_params = super().get_parameters()
+
+        # change top if there are multiple ranges
+        length = len(self.ranges)
+        if length > 1:
+            s = []
+            for i in range(0, length):
+                s.append(self.get_name()+"_"+i)
+            s_params['top'] = s
+
+        s_params['ranges'] = self.ranges
+        s_params['type'] = 'Slice'
+        return {k: v for k, v in s_params.items() if v is not None}
+
+
+class DistributedSlotSparseEmbeddingHash(Layer):
+
+    def __init__(self, name, src_layers, vocabulary_size, load_factor, embedding_vec_size, combiner):
+        '''
+        Distributed Slot Sparse Embedding Hash layer.
+        :param name: str
+            Specifies name of a layer.
+        :param src_layers: Layer or a list of Layers
+            Specifies source layer(s) for a layer.
+        :param vocabulary_size: int or long
+            Specifies the maximum vocabulary size for the embedding.
+        :param load_factor: float
+            Specifies the radio of the loaded vocabulary to capacity of the hashtable.
+        :param embedding_vec_size: int
+            Specifies the vector size of an embedding weight (value). Then the memory used in this hashtable will be
+            vocabulary_size x embedding_vec_size / load_factor
+        :param combiner: Boolean
+            If set to 0 then sum, if set to 1 then mean
+        '''
+        super().__init__(self, name, src_layers)
+        self.vocabulary_size = vocabulary_size
+        self.load_factor = load_factor
+        self.embedding_vec_size = embedding_vec_size
+        self.combiner = combiner
+
+    def get_parameters(self):
+        d_params = super().get_parameters()
+        d_params['type'] = 'DistributedSlotSparseEmbeddingHash'
+        d_params['sparse_embedding_hparam'] = { "vocabulary_size": self.vocabulary_size,
+                                                "load_factor": self.load_factor,
+                                                "embedding_vec_size": self.embedding_vec_size,
+                                                "combiner": self.combiner}
+        return {k: v for k, v in d_params.items() if v is not None}
+
+
+class RELU(Layer):
+    def __init__(self, name, src_layers):
+        '''
+        RELU layer.
+        :param name: str
+            Specifies name of a layer.
+        :param src_layers: Layer or a list of Layers
+            Specifies source layer(s) for a layer.
+        '''
+        super().__init__(name, src_layers)
+
+    def get_parameters(self):
+        r_params = super().get_parameters()
+        r_params['type'] = 'ReLu'
+        return {k: v for k, v in r_params.items() if v is not None}
+
+
+class BinaryCrossEntropyLoss(Layer):
+    def __init__(self, name, src_layers):
+        '''
+        Binary cross entropy loss layer.
+        :param name: str
+            Specifies name of a layer.
+        :param src_layers: Layer or a list of Layers
+            Specifies source layer(s) for a layer.
+        '''
+        super().__init__(name, src_layers)
+
+    def get_parameters(self):
+        b_params = super().get_parameters()
+        b_params['type'] = 'BinaryCrossEntropyLoss'
+        return {k: v for k, v in b_params.items() if v is not None}
