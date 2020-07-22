@@ -18,7 +18,7 @@
 
 class Model:
 
-    def __init__(self, solver, optimizer, layers):
+    def __init__(self, solver, optimizer, layers=None):
         '''
 
         :param solver: Solver
@@ -30,7 +30,10 @@ class Model:
         '''
         self.solver = solver
         self.optimizer = optimizer
-        self.layer = layers
+        if layers is None:
+            self.layers = []
+        else:
+            self.layers = layers
 
     def get_parameters(self):
         parameters = dict()
@@ -42,6 +45,12 @@ class Model:
     def __str__(self):
         import json
         return json.dumps( self.get_parameters())
+
+    def add_layer(self, layer):
+        self.layers.append(layer)
+
+    def get_layer_count(self):
+        return len(self.layers)
 
 
 class Solver:

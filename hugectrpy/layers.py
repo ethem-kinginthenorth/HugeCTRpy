@@ -25,7 +25,7 @@ class Layer:
         :param name: str
             Specifies name of a layer.
         :param src_layers: Layer or a list of Layers
-            Specifies source layer(s) for a layer
+            Specifies source layer(s) for a layer.
         '''
         self.name = name
         self.src_layers = src_layers
@@ -73,7 +73,7 @@ class Dropout(Layer):
         :param name: str
             Specifies name of a layer.
         :param src_layers: Layer or a list of Layers
-            Specifies source layer(s) for a layer
+            Specifies source layer(s) for a layer.
         :param rate: float
             Specifies the ratio to be dropped out.
         '''
@@ -95,7 +95,7 @@ class FullyConnected(Layer):
         :param name: str
             Specifies name of a layer.
         :param src_layers: Layer or a list of Layers
-            Specifies source layer(s) for a layer
+            Specifies source layer(s) for a layer.
         :param n: int
             Specifies the number of neurons in the layer.
         '''
@@ -107,3 +107,61 @@ class FullyConnected(Layer):
         f_params['type'] = 'InnerProduct'
         f_params['fc_param'] = { "num_output" : self.n }
         return {k: v for k, v in f_params.items() if v is not None}
+
+
+class ELU(Layer):
+
+    def __init__(self, name, src_layers, alpha=1.0):
+        '''
+        ELU layer
+       :param name: str
+            Specifies name of a layer.
+        :param src_layers: Layer or a list of Layers
+            Specifies source layer(s) for a layer.
+        :param alpha: float
+            Specifies alpha parameter for the layer.
+        '''
+        super().__init__(name, src_layers)
+        self.alpha = alpha
+
+    def get_parameters(self):
+        e_params = super().get_parameters()
+        e_params['type'] = "ELU"
+        e_params['elu_param'] = { "elu_param" : self.alpha }
+        return {k: v for k, v in e_params.items() if v is not None}
+
+
+class Reshape(Layer):
+
+    def __init__(self, name, src_layers, leading_dim):
+        '''
+        Reshape layer
+        :param name: str
+            Specifies name of a layer.
+        :param src_layers: Layer or a list of Layers
+            Specifies source layer(s) for a layer.
+        :param leading_dim: int
+            Specifies the leading dimension in the rehape layer.
+        '''
+
+        super().__init__(name, src_layers)
+        self.leading_dim = leading_dim
+
+    def get_parameters(self):
+        r_params = super().get_parameters()
+        r_params['type'] = "Reshape"
+        r_params['leading_dim'] = self.leading_dim
+        return {k: v for k, v in r_params.items() if v is not None}
+
+
+class Concat(Layer):
+
+    def __init__(self, name, src_layers):
+        '''
+        Concat layer.
+        :param name: str
+            Specifies name of a layer.
+        :param src_layers: Layer or a list of Layers
+            Specifies source layer(s) for a layer.
+        '''
+        super().__init__(name, src_layers)
