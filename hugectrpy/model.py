@@ -136,6 +136,14 @@ class Optimizer:
         self.global_update = global_update
         self.lr = lr
 
+    def get_parameters(self):
+        params = dict()
+        params['global_update'] = self.global_update
+        return {k: v for k, v in params.items() if v is not None}
+
+    def __str__(self):
+        return str(self.get_parameters())
+
 
 class AdamOptimizer(Optimizer):
 
@@ -167,7 +175,7 @@ class AdamOptimizer(Optimizer):
         self.epsilon = epsilon
 
     def get_parameters(self):
-        adam_list = dict()
+        adam_list = super().get_parameters()
         adam_list['alpha'] = self.alpha
         adam_list['beta1'] = self.beta1
         adam_list['beta2'] = self.beta2
@@ -176,13 +184,9 @@ class AdamOptimizer(Optimizer):
 
         optimizer_list = dict()
         optimizer_list['type'] = 'Adam'
-        optimizer_list['global_update'] = self.global_update
         optimizer_list['adam_hparam'] = {k: v for k, v in adam_list.items() if v is not None}
 
         return {k: v for k, v in optimizer_list.items() if v is not None}
-
-    def __str__(self):
-        return str(self.get_parameters())
 
 
 class MomentumSGD(Optimizer):
@@ -209,15 +213,11 @@ class MomentumSGD(Optimizer):
         momentum_list['momentum_factor'] = self.momentum
         momentum_list['learning_rate'] = self.lr
 
-        optimizer_list = dict()
+        optimizer_list = super().get_parameters()
         optimizer_list['type'] = 'MomentumSGD'
-        optimizer_list['global_update'] = self.global_update
         optimizer_list['momentum_sgd_hparam'] = {k: v for k, v in momentum_list.items() if v is not None}
 
         return {k: v for k, v in optimizer_list.items() if v is not None}
-
-    def __str__(self):
-        return str(self.get_parameters())
 
 
 class Nesterov(Optimizer):
@@ -243,12 +243,8 @@ class Nesterov(Optimizer):
         nesterov_list['momentum_factor'] = self.momentum
         nesterov_list['learning_rate'] = self.lr
 
-        optimizer_list = dict()
+        optimizer_list = super().get_parameters()
         optimizer_list['type'] = 'Nesterov'
-        optimizer_list['global_update'] = self.global_update
         optimizer_list['momentum_sgd_hparam'] = {k: v for k, v in nesterov_list.items() if v is not None}
 
         return {k: v for k, v in optimizer_list.items() if v is not None}
-
-    def __str__(self):
-        return str(self.get_parameters())
