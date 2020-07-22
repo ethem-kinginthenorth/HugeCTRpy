@@ -16,6 +16,34 @@
 #  limitations under the License.
 
 
+class Model:
+
+    def __init__(self, solver, optimizer, layers):
+        '''
+
+        :param solver: Solver
+            Specifies a solver for model.
+        :param optimizer: Optimizer
+            Specifies an optimizer for model.
+        :param layers: list of Layers
+            Specifies layers for model.
+        '''
+        self.solver = solver
+        self.optimizer = optimizer
+        self.layer = layers
+
+    def get_parameters(self):
+        parameters = dict()
+        parameters['solver'] = self.solver.get_parameters()
+        parameters['optimizer'] = self.optimizer.get_parameters()
+
+        return {k: v for k, v in parameters.items() if v is not None}
+
+    def __str__(self):
+        import json
+        return json.dumps( self.get_parameters())
+
+
 class Solver:
 
     def __init__(self, lr_policy='fixed', display=1000, max_iter=30000, gpu=[0],
@@ -107,6 +135,7 @@ class Optimizer:
 
         self.global_update = global_update
         self.lr = lr
+
 
 class AdamOptimizer(Optimizer):
 

@@ -1,10 +1,10 @@
 import unittest
-from hugectrpy.model import Solver
 
 
-class MyTestCase(unittest.TestCase):
+class TestModel(unittest.TestCase):
 
     def test_model_1(self):
+        from hugectrpy.model import Solver
         s = Solver()
         print(s)
 
@@ -22,6 +22,14 @@ class MyTestCase(unittest.TestCase):
         from hugectrpy.model import Nesterov
         n = Nesterov()
         print(n)
+
+    def test_model_5(self):
+        from hugectrpy.model import Solver, MomentumSGD, Model
+        solver = Solver()
+        m = MomentumSGD()
+
+        model = Model(solver, m, None)
+        print(model)
 
 
 if __name__ == '__main__':
